@@ -4,53 +4,21 @@
   <meta charset="UTF-8">
   <title>منوی کافه</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      overflow: hidden;
+      padding: 0;
+      height: 100%;
+      background-color: #f0f0f0;
     }
-    #pdf-container {
+    iframe {
       width: 100%;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: auto;
-      background: #f8f8f8;
-    }
-    canvas {
-      max-width: 100%;
-      height: auto;
+      height: 100%;
+      border: none;
+      pointer-events: none; /* باعث میشه دانلود و انتخاب متن نشه */
     }
   </style>
 </head>
 <body>
-  <div id="pdf-container"><canvas id="pdf-canvas"></canvas></div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-  <script>
-    const url = 'Menu.pdf';
-    const maxZoom = 1.5; // یعنی 150%
-    let currentZoom = 1;
-
-    const canvas = document.getElementById('pdf-canvas');
-    const context = canvas.getContext('2d');
-
-    pdfjsLib.getDocument(url).promise.then(pdf => {
-      pdf.getPage(1).then(page => {
-        const viewport = page.getViewport({ scale: currentZoom });
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        page.render({
-          canvasContext: context,
-          viewport: viewport
-        });
-      });
-    });
-
-    // جلوگیری از زوم بیشتر
-    document.addEventListener('wheel', (e) => {
-      if (e.ctrlKey) e.preventDefault();
-    }, { passive: false });
-  </script>
+  <iframe src="Menu.pdf#view=FitH&zoom=100" allowfullscreen></iframe>
 </body>
 </html>
