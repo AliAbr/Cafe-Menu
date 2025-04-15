@@ -4,21 +4,54 @@
   <meta charset="UTF-8">
   <title>منوی کافه</title>
   <style>
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
-      height: 100%;
-      background-color: #f0f0f0;
+      background: #fefefe;
+      font-family: sans-serif;
     }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      pointer-events: none; /* باعث میشه دانلود و انتخاب متن نشه */
+    #viewerContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    canvas {
+      margin-bottom: 10px;
+      max-width: 100%;
     }
   </style>
 </head>
 <body>
-  <iframe src="Menu.pdf#view=FitH&zoom=100" allowfullscreen></iframe>
+  <div id="viewerContainer"></div>
+
+  <script type="module">
+    import * as pdfjsLib from './pdfjs/pdf.mjs';
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
+
+    const url = 'menu.pdf';
+    const container = document.getElementById('viewerContainer');
+
+    const pdf = await pdfjsLib.getDocument(url).promise;
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const scale = 1.5;
+      const viewport = page.getViewport({ scale });
+
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      container.appendChild(canvas);
+
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport
+      };
+      await page.render(renderContext).promise;
+    }
+  </script>
 </body>
 </html>
