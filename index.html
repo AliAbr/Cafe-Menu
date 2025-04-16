@@ -1,57 +1,87 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>منوی کافه</title>
+  <meta charset="UTF-8" />
+  <title>Menu Viewer</title>
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       background: #fefefe;
-      font-family: sans-serif;
+      overflow-x: hidden;
     }
+
     #viewerContainer {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
     }
+
     canvas {
-      margin-bottom: 10px;
+      display: block;
       max-width: 100%;
+      background: white;
+    }
+
+    .textLayer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      color: black;
+      font-family: sans-serif;
+      transform-origin: 0 0;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
   <div id="viewerContainer"></div>
 
-  <script type="module">
-    import * as pdfjsLib from './pdfjs/pdf.mjs';
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    const url = 'menu.pdf'; // نام فایل پی‌دی‌اف شما
 
-    pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
-
-    const url = 'menu.pdf';
     const container = document.getElementById('viewerContainer');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    const pdf = await pdfjsLib.getDocument(url).promise;
+    pdfjsLib.getDocument(url).promise.then(pdf => {
+      for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+        pdf.getPage(pageNumber).then(page => {
+          const viewport = page.getViewport({ scale: 1.5 });
 
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const scale = 1.5;
-      const viewport = page.getViewport({ scale });
+          const wrapper = document.createElement('div');
+          wrapper.style.position = 'relative';
+          wrapper.style.width = viewport.width + 'px';
+          wrapper.style.height = viewport.height + 'px';
 
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const context = canvas.getContext('2d');
 
-      container.appendChild(canvas);
+          wrapper.appendChild(canvas);
+          container.appendChild(wrapper);
 
-      const renderContext = {
-        canvasContext: context,
-        viewport: viewport
-      };
-      await page.render(renderContext).promise;
-    }
+          page.render({ canvasContext: context, viewport: viewport });
+
+          page.getTextContent().then(textContent => {
+            const textLayerDiv = document.createElement('div');
+            textLayerDiv.className = 'textLayer';
+            textLayerDiv.style.width = canvas.width + 'px';
+            textLayerDiv.style.height = canvas.height + 'px';
+            wrapper.appendChild(textLayerDiv);
+
+            pdfjsLib.renderTextLayer({
+              textContent: textContent,
+              container: textLayerDiv,
+              viewport: viewport,
+              textDivs: []
+            });
+          });
+        });
+      }
+    });
   </script>
 </body>
 </html>
