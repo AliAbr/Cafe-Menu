@@ -11,38 +11,19 @@
       padding: 0;
       background: #fff;
       overflow-x: hidden;
+      width: 100%;
+      height: 100%;
     }
 
-    #content {
+    iframe {
+      border: none;
       width: 100vw;
-      box-sizing: border-box;
-      transform-origin: top left;
-    }
-
-    .scaled {
-      display: inline-block;
+      height: 100vh;
       transform-origin: top left;
     }
   </style>
 </head>
 <body>
-  <div id="content"><div class="scaled" id="scaledContent"></div></div>
-
-  <script>
-    async function loadAndScale() {
-      const res = await fetch('menu.html');
-      const html = await res.text();
-      const scaledDiv = document.getElementById("scaledContent");
-      scaledDiv.innerHTML = html;
-
-      requestAnimationFrame(() => {
-        const scale = window.innerWidth / scaledDiv.scrollWidth;
-        scaledDiv.style.transform = scale(${scale});
-      });
-    }
-
-    window.addEventListener("load", loadAndScale);
-    window.addEventListener("resize", loadAndScale);
-  </script>
+  <iframe id="menuFrame" src="menu.html"></iframe>
 </body>
 </html>
