@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>منوی کافه ابری</title>
+  <link rel="icon" href="logo.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+    iframe {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      transform-origin: top left;
+      transform: scale(1);
+    }
+
+    @media (max-width: 768px) {
+      iframe {
+        transform: scale(0.85);
+      }
+    }
+
+    @media (max-width: 480px) {
+      iframe {
+        transform: scale(0.75);
+      }
+    }
+  </style>
+</head>
+<body>
+  <iframe src="menu.html"></iframe>
+</body>
+</html>
