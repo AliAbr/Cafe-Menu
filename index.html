@@ -1,86 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Menu Viewer</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: #fefefe;
-      overflow-x: hidden;
+      background: #000;
+      height: 100%;
+      overflow: hidden;
     }
-
-    #viewerContainer {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
     canvas {
       display: block;
-      max-width: 100%;
-      background: white;
-    }
-
-    .textLayer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      color: black;
-      font-family: sans-serif;
-      transform-origin: 0 0;
-      pointer-events: none;
+      margin: 0 auto;
+      background: #000;
     }
   </style>
 </head>
 <body>
-  <div id="viewerContainer"></div>
+  <canvas id="the-canvas"></canvas>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script>
-    const url = 'menu.pdf'; // نام فایل پی‌دی‌اف شما
+  <script type="module">
+    import * as pdfjsLib from './pdfjs/pdf.mjs';
 
-    const container = document.getElementById('viewerContainer');
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    // مسیر Worker را ست می‌کنیم
+    pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
 
-    pdfjsLib.getDocument(url).promise.then(pdf => {
-      for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-        pdf.getPage(pageNumber).then(page => {
-          const viewport = page.getViewport({ scale: 1.5 });
+    const url = './menu.pdf';
 
-          const wrapper = document.createElement('div');
-          wrapper.style.position = 'relative';
-          wrapper.style.width = viewport.width + 'px';
-          wrapper.style.height = viewport.height + 'px';
+    const loadingTask = pdfjsLib.getDocument(url);
+    loadingTask.promise.then(pdf => {
+      console.log('PDF loaded');
 
-          const canvas = document.createElement('canvas');
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const context = canvas.getContext('2d');
+      const scale = 1.8; // تغییرش بده اگه لازمه
+      const canvas = document.getElementById('the-canvas');
+      const context = canvas.getContext('2d');
 
-          wrapper.appendChild(canvas);
-          container.appendChild(wrapper);
+      pdf.getPage(1).then(page => {
+        const viewport = page.getViewport({ scale: scale });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
 
-          page.render({ canvasContext: context, viewport: viewport });
-
-          page.getTextContent().then(textContent => {
-            const textLayerDiv = document.createElement('div');
-            textLayerDiv.className = 'textLayer';
-            textLayerDiv.style.width = canvas.width + 'px';
-            textLayerDiv.style.height = canvas.height + 'px';
-            wrapper.appendChild(textLayerDiv);
-
-            pdfjsLib.renderTextLayer({
-              textContent: textContent,
-              container: textLayerDiv,
-              viewport: viewport,
-              textDivs: []
-            });
-          });
-        });
-      }
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
+        page.render(renderContext);
+      });
+    }).catch(error => {
+      console.error('Error loading PDF: ', error);
     });
   </script>
 </body>
