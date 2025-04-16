@@ -3,39 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <title>منوی کافه ابری</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.75, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.75, user-scalable=yes">
   <link rel="icon" href="logo.png" type="image/png">
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      overflow-x: hidden;
-      transform-origin: top left;
       background: #fff;
+      overflow-x: hidden;
     }
+
     #content {
+      width: 100vw;
+      box-sizing: border-box;
+      transform-origin: top left;
+    }
+
+    .scaled {
+      display: inline-block;
       transform-origin: top left;
     }
   </style>
 </head>
 <body>
-  <div id="content"></div>
+  <div id="content"><div class="scaled" id="scaledContent"></div></div>
 
   <script>
-    function scaleContent() {
-      const content = document.getElementById("content");
-      const scale = window.innerWidth / content.scrollWidth;
-      content.style.transform = scale(${scale});
-    }
-
-    window.addEventListener("load", async () => {
+    async function loadAndScale() {
       const res = await fetch('menu.html');
       const html = await res.text();
-      document.getElementById("content").innerHTML = html;
-      scaleContent();
-    });
+      const scaledDiv = document.getElementById("scaledContent");
+      scaledDiv.innerHTML = html;
 
-    window.addEventListener("resize", scaleContent);
+      requestAnimationFrame(() => {
+        const scale = window.innerWidth / scaledDiv.scrollWidth;
+        scaledDiv.style.transform = scale(${scale});
+      });
+    }
+
+    window.addEventListener("load", loadAndScale);
+    window.addEventListener("resize", loadAndScale);
   </script>
 </body>
 </html>
